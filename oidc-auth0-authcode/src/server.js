@@ -62,9 +62,17 @@ app.get('/', (req, res) => {
 
 app.get('/profile', (req, res) => {
   const { idToken, decodedIdToken } = req.session;
+
+  const logoutUrl = `https://${
+    process.env.OIDC_PROVIDER
+  }/v2/logout?${query_string.stringify({
+    returnTo: 'http://localhost:3000/logout'
+  })}`;
+
   res.render('profile', {
     idToken,
-    decodedIdToken
+    decodedIdToken,
+    logoutUrl
   });
 });
 
@@ -149,6 +157,12 @@ app.get('/to-dos', async (req, res) => {
   } catch (error) {
     res.status(error.statusCode).send(error);
   }
+});
+
+app.get('/logout', async (req, res) => {
+  console.log('Logout called');
+  req.session.destroy();
+  res.redirect('/');
 });
 
 app.get('/remove-to-do/:id', async (req, res) => {
